@@ -1,9 +1,12 @@
 <template lang="pug">
-  td.datepicker-cell
+  td.datepicker-cell(
+    :class="cellClasses"
+  )
     button.datepicker-button._date(
-      tabindex="-1"
-      :disabled="isDisabled"
+      :tabindex="isSelected ? 0 : -1"
+      :aria-selected="isSelected"
       :data-date="datestring"
+      @click="onClick"
     )
       span.datepicker-label._date {{ label }}
 </template>
@@ -23,8 +26,29 @@ import {
 export default class DatepickerDay extends Vue {
   @PropSync('date') day!: DatepickerGridDay
 
+  get cellClasses() {
+    return {
+      _selected: this.isSelected,
+      _today: this.isToday,
+      _weekend: this.isWeekend,
+      _disabled: this.isDisabled,
+    }
+  }
+
   get isDisabled() {
     return this.day.disabled
+  }
+
+  get isSelected() {
+    return this.day.selected
+  }
+
+  get isToday() {
+    return this.day.date.setHours(0, 0, 0, 0) == new Date().setHours(0, 0, 0, 0)
+  }
+
+  get isWeekend() {
+    return !(this.day.date.getDay() % 6)
   }
 
   get label() {
@@ -45,6 +69,10 @@ export default class DatepickerDay extends Vue {
     }
 
     return day.getFullYear() + '-' + m + '-' + d
+  }
+
+  onClick() {
+    this.$emit('dateClicked', this.day)
   }
 }
 
