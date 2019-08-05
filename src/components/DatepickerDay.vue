@@ -76,7 +76,7 @@ export default class DatepickerDay extends Vue {
       m = '0' + m
     }
 
-    return day.getFullYear() + '-' + m + '-' + d
+    return `${day.getFullYear()}-${m}-${d}`
   }
 
   focus() {

@@ -5,8 +5,9 @@
     .datepicker-text
       input(
         :placeholder="placeholder"
-        v-model="inputDate"
-        @input="onInput"
+        :value="inputDate"
+        @input="onInput($event.target.value)"
+        @blur="onInputBlur"
       )
 
     .datepicker-button
@@ -50,7 +51,8 @@
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, Ref, Vue, Watch } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Vue, Watch } from 'vue-property-decorator'
+import chrono from 'chrono-node'
 import DatepickerGrid from '@/components/DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
 
@@ -62,10 +64,27 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
 export default class Datepicker extends Vue {
   @Prop() placeholder?: String
 
-  focusDay = new Date()
-  selectedDay = new Date()
+  // handle value prop
+  // @PropSync('value') returnValue?: string
 
-  inputDate: string = this.selectedDay.toISOString().slice(0, 10)
+  mounted() {
+    // accept initial input
+  }
+
+  inputDay?: Date
+  inputValid: boolean = false
+
+  focusDay = new Date()
+  selectedDay: Date | null = null
+
+  isValidDate(d?: Date) {
+    return d instanceof Date && !isNaN(d.getTime())
+  }
+
+  get inputDate() {
+    const d = this.selectedDay
+    return d ? `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` : null
+  }
 
   dayLabels = [
     'Sunday',
@@ -97,9 +116,20 @@ export default class Datepicker extends Vue {
     return this.monthLabels[fd.getMonth()] + ' ' + fd.getFullYear()
   }
 
-  onInput() {
+  onInput(val: string) {
     // check validity
-    // update calendar
+    this.inputDay = chrono.parseDate(val)
+    this.inputValid = this.isValidDate(this.inputDay)
+
+    // emit value, null if invalid
+    // this.$emit('input', this.inputValid ? this.inputDay : null)
+  }
+
+  onInputBlur() {
+    if (this.inputDay && this.inputValid) {
+      this.focusDay = this.inputDay
+      this.selectedDay = this.inputDay
+    }
   }
 
   buttonClicked() {
@@ -112,6 +142,7 @@ export default class Datepicker extends Vue {
 
     if (!day.disabled) {
       // day was selected
+      this.selectedDay = day.date
     }
   }
 
@@ -152,6 +183,7 @@ export default class Datepicker extends Vue {
     }
   }
 
+  // header navigation
   onPreviousMonthClicked(e: Event) {
     this.moveToPreviousMonth()
   }
@@ -165,6 +197,7 @@ export default class Datepicker extends Vue {
     this.moveToNextYear()
   }
 
+  // move within grid
   moveFocusToPreviousDay() {
     this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() - 1))
   }
@@ -189,6 +222,8 @@ export default class Datepicker extends Vue {
   moveFocusToNextWeek() {
     this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() + 7))
   }
+
+  // move to updated grid
   moveToPreviousMonth() {
     this.focusDay = new Date(
       this.focusDay.setMonth(this.focusDay.getMonth() - 1)

@@ -40,7 +40,7 @@ import DatepickerDay from '@/components/DatepickerDay.vue'
 export default class DatepickerGrid extends Vue {
   @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
-  @PropSync('selected') selectedDay!: Date
+  @PropSync('selected') selectedDay?: Date
   @Ref('days') gridDays!: DatepickerDay[]
 
   dayIndex(row: number, column: number) {
@@ -62,7 +62,7 @@ export default class DatepickerGrid extends Vue {
     let focussed = false
     let day = { date, disabled, focussed, selected }
 
-    if (this.daysAreSame(date, this.selectedDay)) {
+    if (this.selectedDay && this.daysAreSame(date, this.selectedDay)) {
       day.selected = true
     }
 

@@ -2,7 +2,11 @@
 
   main
     h1 Datepicker
-    datepicker
+    datepicker(v-model="pickedDate" @input="onInput")
+
+    p {{ pickedDate || 'No date' }}
+
+
 
 </template>
 
@@ -15,5 +19,11 @@ import Datepicker from '@/components/Datepicker.vue'
     Datepicker,
   },
 })
-export default class Home extends Vue {}
+export default class Home extends Vue {
+  pickedDate?: string = '2019-08-05'
+
+  onInput(val) {
+    console.log(val)
+  }
+}
 </script>

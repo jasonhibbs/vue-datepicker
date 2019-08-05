@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@storybook/vue": "^5.1.10",
+    "av-ts": "^0.10.0",
+    "chrono-node": "^1.3.11",
     "core-js": "^2.6.5",
     "normalize.css": "^8.0.1",
     "vue": "^2.6.10",
