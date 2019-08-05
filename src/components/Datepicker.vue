@@ -40,8 +40,9 @@
       datepicker-grid(
         :focussed="focusDay"
         :selected="selectedDay"
-        :days="dayLabels"
-        @dateClicked="onDateClicked"
+        :dayLabels="dayLabels"
+        @dateClick="onDateClicked"
+        @dateKeydown="onDateKeydown"
       )
 
       </table>
@@ -106,9 +107,48 @@ export default class Datepicker extends Vue {
   }
 
   onDateClicked(day: DatepickerGridDay) {
-    console.log(day)
-    if (day.disabled) {
-      this.moveFocusToDay(day.date)
+    // we should update the focus in any case
+    this.focusDay = day.date
+
+    if (!day.disabled) {
+      // day was selected
+    }
+  }
+
+  onDateKeydown(e: KeyboardEvent) {
+    switch (e.key) {
+      case 'ArrowLeft':
+        this.moveFocusToPreviousDay()
+        break
+      case 'ArrowRight':
+        this.moveFocusToNextDay()
+        break
+      case 'Home':
+        this.moveFocusToFirstDayOfWeek()
+        break
+      case 'End':
+        this.moveFocusToLastDayOfWeek()
+        break
+      case 'ArrowUp':
+        this.moveFocusToPreviousWeek()
+        break
+      case 'ArrowDown':
+        this.moveFocusToNextWeek()
+        break
+      case 'PageUp':
+        if (e.shiftKey) {
+          this.moveToPreviousYear()
+        } else {
+          this.moveToPreviousMonth()
+        }
+        break
+      case 'PageDown':
+        if (e.shiftKey) {
+          this.moveToNextYear()
+        } else {
+          this.moveToNextMonth()
+        }
+        break
     }
   }
 
@@ -125,13 +165,30 @@ export default class Datepicker extends Vue {
     this.moveToNextYear()
   }
 
-  moveFocusToDay(day: Date) {
-    console.log(day)
-    this.focusDay = day
-
-    // this.setFocusDay();
+  moveFocusToPreviousDay() {
+    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() - 1))
   }
-
+  moveFocusToNextDay() {
+    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() + 1))
+  }
+  moveFocusToFirstDayOfWeek() {
+    this.focusDay = new Date(
+      this.focusDay.setDate(this.focusDay.getDate() - this.focusDay.getDay())
+    )
+  }
+  moveFocusToLastDayOfWeek() {
+    this.focusDay = new Date(
+      this.focusDay.setDate(
+        this.focusDay.getDate() + (6 - this.focusDay.getDay())
+      )
+    )
+  }
+  moveFocusToPreviousWeek() {
+    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() - 7))
+  }
+  moveFocusToNextWeek() {
+    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() + 7))
+  }
   moveToPreviousMonth() {
     this.focusDay = new Date(
       this.focusDay.setMonth(this.focusDay.getMonth() - 1)

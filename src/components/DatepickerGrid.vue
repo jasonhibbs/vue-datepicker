@@ -6,7 +6,7 @@
     thead
       tr
         th(
-          v-for="day in days"
+          v-for="day in dayLabels"
           scope="col"
           :abbr="day"
           :title="day"
@@ -20,14 +20,16 @@
       )
         datepicker-day(
           v-for="column in 7"
+          ref="days"
           :date="shownDays[dayIndex(row, column)]"
-          @dateClicked="$emit('dateClicked', $event)"
+          @click="$emit('dateClick', $event)"
+          @keydown="$emit('dateKeydown', $event)"
         )
 
 </template>
 
 <script lang="ts">
-import { Component, Emit, Prop, PropSync, Vue } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Ref, Vue } from 'vue-property-decorator'
 import DatepickerDay from '@/components/DatepickerDay.vue'
 
 @Component({
@@ -36,26 +38,36 @@ import DatepickerDay from '@/components/DatepickerDay.vue'
   },
 })
 export default class DatepickerGrid extends Vue {
-  @Prop() days!: String[]
+  @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
   @PropSync('selected') selectedDay!: Date
+  @Ref('days') gridDays!: DatepickerDay[]
 
   dayIndex(row: number, column: number) {
     return (row - 1) * 7 + (column - 1)
+  }
+
+  daysAreSame(a: Date, b: Date) {
+    return (
+      a.getFullYear() == b.getFullYear() &&
+      a.getMonth() == b.getMonth() &&
+      a.getDate() == b.getDate()
+    )
   }
 
   makeDay(date: Date, focusDay: Date) {
     date = new Date(date)
     let disabled = date.getMonth() != focusDay.getMonth()
     let selected = false
-    let day = { date, disabled, selected }
+    let focussed = false
+    let day = { date, disabled, focussed, selected }
 
-    if (
-      date.getFullYear() == this.selectedDay.getFullYear() &&
-      date.getMonth() == this.selectedDay.getMonth() &&
-      date.getDate() == this.selectedDay.getDate()
-    ) {
+    if (this.daysAreSame(date, this.selectedDay)) {
       day.selected = true
+    }
+
+    if (this.daysAreSame(date, this.focusDay)) {
+      day.focussed = true
     }
 
     return day
@@ -85,6 +97,21 @@ export default class DatepickerGrid extends Vue {
     }
 
     return days
+  }
+
+  updated() {
+    this.updateFocus()
+  }
+
+  updateFocus() {
+    let fd = this.focusDay
+
+    this.gridDays.forEach((gridDay, index) => {
+      let d = gridDay.day.date
+      if (this.daysAreSame(d, fd)) {
+        gridDay.focus()
+      }
+    })
   }
 }
 </script>

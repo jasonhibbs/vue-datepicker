@@ -3,10 +3,12 @@
     :class="cellClasses"
   )
     button.datepicker-button._date(
-      :tabindex="isSelected ? 0 : -1"
+      ref="button"
+      :tabindex="isFocussed ? 0 : -1"
       :aria-selected="isSelected"
       :data-date="datestring"
       @click="onClick"
+      @keydown="onKeydown"
     )
       span.datepicker-label._date {{ label }}
 </template>
@@ -25,10 +27,12 @@ import {
 @Component
 export default class DatepickerDay extends Vue {
   @PropSync('date') day!: DatepickerGridDay
+  @Ref('button') button!: HTMLButtonElement
 
   get cellClasses() {
     return {
       _selected: this.isSelected,
+      _focussed: this.isFocussed,
       _today: this.isToday,
       _weekend: this.isWeekend,
       _disabled: this.isDisabled,
@@ -37,6 +41,10 @@ export default class DatepickerDay extends Vue {
 
   get isDisabled() {
     return this.day.disabled
+  }
+
+  get isFocussed() {
+    return this.day.focussed
   }
 
   get isSelected() {
@@ -71,14 +79,23 @@ export default class DatepickerDay extends Vue {
     return day.getFullYear() + '-' + m + '-' + d
   }
 
+  focus() {
+    this.button.focus()
+  }
+
   onClick() {
-    this.$emit('dateClicked', this.day)
+    this.$emit('click', this.day)
+  }
+
+  onKeydown(e: KeyboardEvent) {
+    this.$emit('keydown', e)
   }
 }
 
 export interface DatepickerGridDay {
   date: Date
   disabled: boolean
+  focussed: boolean
   selected: boolean
 }
 </script>
