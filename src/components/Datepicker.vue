@@ -63,28 +63,21 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
 })
 export default class Datepicker extends Vue {
   @Prop() placeholder?: String
+  @PropSync('value') inputDate!: string
 
   // handle value prop
   // @PropSync('value') returnValue?: string
 
   mounted() {
     // accept initial input
+    this.checkInput(this.inputDate)
+    this.updateValueFromInput()
   }
 
   inputDay?: Date
-  inputValid: boolean = false
 
   focusDay = new Date()
   selectedDay: Date | null = null
-
-  isValidDate(d?: Date) {
-    return d instanceof Date && !isNaN(d.getTime())
-  }
-
-  get inputDate() {
-    const d = this.selectedDay
-    return d ? `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}` : null
-  }
 
   dayLabels = [
     'Sunday',
@@ -111,25 +104,72 @@ export default class Datepicker extends Vue {
     'December',
   ]
 
-  get monthYearLabel() {
+  formatDate(date: Date) {
+    const y = date
+      .getFullYear()
+      .toString()
+      .padStart(4, '0')
+    const m = (date.getMonth() + 1).toString().padStart(2, '0')
+    const d = date
+      .getDate()
+      .toString()
+      .padStart(2, '0')
+    return `${y}-${m}-${d}`
+  }
+
+  get monthYearLabel(): string {
     const fd = this.focusDay
-    return this.monthLabels[fd.getMonth()] + ' ' + fd.getFullYear()
+    return `${this.monthLabels[fd.getMonth()]} ${fd.getFullYear()}`
   }
 
-  onInput(val: string) {
-    // check validity
-    this.inputDay = chrono.parseDate(val)
-    this.inputValid = this.isValidDate(this.inputDay)
+  parseInput(d: string) {
+    let parsed = new Date(d)
 
-    // emit value, null if invalid
-    // this.$emit('input', this.inputValid ? this.inputDay : null)
+    if (chrono) {
+      parsed = chrono.en_GB.parseDate(d)
+    }
+
+    return parsed
   }
 
-  onInputBlur() {
+  isDate(d?: Date | null) {
+    return d instanceof Date && !isNaN(d.getTime())
+  }
+
+  updateValue(d: Date | null) {
+    if (d && this.isDate(d)) {
+      this.$emit('input', this.formatDate(d))
+    } else {
+      this.$emit('input', null)
+    }
+  }
+
+  checkInput(d: string) {
+    this.inputDay = this.parseInput(d)
+  }
+
+  get inputValid(): boolean {
+    return this.isDate(this.inputDay)
+  }
+
+  updateValueFromInput() {
     if (this.inputDay && this.inputValid) {
       this.focusDay = this.inputDay
       this.selectedDay = this.inputDay
+      this.updateValue(this.inputDay)
+    } else {
+      this.focusDay = new Date()
+      this.selectedDay = null
+      this.updateValue(null)
     }
+  }
+
+  onInput(d: string) {
+    this.checkInput(d)
+  }
+
+  onInputBlur() {
+    this.updateValueFromInput()
   }
 
   buttonClicked() {
@@ -143,6 +183,7 @@ export default class Datepicker extends Vue {
     if (!day.disabled) {
       // day was selected
       this.selectedDay = day.date
+      this.$emit('input', this.formatDate(day.date))
     }
   }
 

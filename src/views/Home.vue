@@ -20,9 +20,9 @@ import Datepicker from '@/components/Datepicker.vue'
   },
 })
 export default class Home extends Vue {
-  pickedDate?: string = '2019-08-05'
+  pickedDate?: string = ''
 
-  onInput(val) {
+  onInput(val: string) {
     console.log(val)
   }
 }

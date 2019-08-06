@@ -2,6 +2,10 @@
 // Forked from https://github.com/Microsoft/BotBuilder
 
 declare module chrono {
+  export class en_GB {
+    parseDate(text: string, refDate?: Date, opts?: any): Date
+  }
+
   export class ParsedResult {
     start: ParsedComponents
     end: ParsedComponents
