@@ -3,50 +3,28 @@
   .datepicker(
     :class="classes"
   )
+    .datepicker-input
+      .datepicker-text
+        input(
+          ref="input"
+          :placeholder="placeholder"
+          :value="inputDate"
+          @input="onInput($event.target.value)"
+          @blur="onInputBlur"
+        )
 
-    .datepicker-text
-      input(
-        ref="input"
-        :placeholder="placeholder"
-        :value="inputDate"
-        @input="onInput($event.target.value)"
-        @blur="onInputBlur"
-      )
-
-    .datepicker-control
-      button(
-        @click="buttonClicked"
-      ) Open Calendar
+      .datepicker-control
+        button(
+          @click="buttonClicked"
+        ) Open Calendar
 
     .datepicker-dialog
-      .datepicker-header
-        button.datepicker-button._previous-year(
-          aria-label="Previous year"
-          @click="onPreviousYearClicked"
-        ) ⏪
-        button.datepicker-button._previous-month(
-          aria-label="Previous month"
-          @click="onPreviousMonthClicked"
-        ) ◀️
-        h2.datepicker-label._month-year#id-dialog-label(
-          class="monthYear"
-          aria-live="polite"
-        ) {{ monthYearLabel }}
-        button.datepicker-button._next-month(
-          aria-label="Next month"
-          @click="onNextMonthClicked"
-        ) ▶️
-        button.datepicker-button._next-year(
-          aria-label="Next year"
-          @click="onNextYearClicked"
-        ) ⏩
-
-      datepicker-grid(
+      datepicker-calendar(
         :focussed="focusDay"
         :selected="selectedDay"
         :dayLabels="dayLabels"
-        @dateClick="onDateClicked"
-        @dateKeydown="onDateKeydown"
+        @focus="onCalendarFocus"
+        @input="onCalendarInput"
       )
 
       </table>
@@ -63,11 +41,13 @@ import {
   Watch,
 } from 'vue-property-decorator'
 import chrono from 'chrono-node'
+import DatepickerCalendar from '@/components/DatepickerCalendar.vue'
 import DatepickerGrid from '@/components/DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
 
 @Component({
   components: {
+    DatepickerCalendar,
     DatepickerGrid,
   },
 })
@@ -100,27 +80,6 @@ export default class Datepicker extends Vue {
     'Saturday',
     'Sunday',
   ]
-
-  monthLabels = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ]
-
-  get monthYearLabel(): string {
-    const m = this.focusDay.getMonth()
-    const y = this.focusDay.getFullYear()
-    return `${this.monthLabels[m]} ${y}`
-  }
 
   formatDate(date: Date) {
     const y = date
@@ -202,109 +161,13 @@ export default class Datepicker extends Vue {
     // toggle calendar
   }
 
-  onDateClicked(day: DatepickerGridDay) {
-    // we should update the focus in any case
-    this.focusDay = day.date
-    // day was selected
-    if (!day.disabled) {
-      this.selectedDay = day.date
-      this.$emit('input', this.formatDate(day.date))
-    }
+  onCalendarInput(d: Date) {
+    this.selectedDay = d
+    this.emitValue(d)
   }
 
-  onDateKeydown(e: KeyboardEvent) {
-    switch (e.key) {
-      case 'ArrowLeft':
-        this.moveFocusToPreviousDay()
-        break
-      case 'ArrowRight':
-        this.moveFocusToNextDay()
-        break
-      case 'Home':
-        this.moveFocusToFirstDayOfWeek()
-        break
-      case 'End':
-        this.moveFocusToLastDayOfWeek()
-        break
-      case 'ArrowUp':
-        this.moveFocusToPreviousWeek()
-        break
-      case 'ArrowDown':
-        this.moveFocusToNextWeek()
-        break
-      case 'PageUp':
-        if (e.shiftKey) {
-          this.moveToPreviousYear()
-        } else {
-          this.moveToPreviousMonth()
-        }
-        break
-      case 'PageDown':
-        if (e.shiftKey) {
-          this.moveToNextYear()
-        } else {
-          this.moveToNextMonth()
-        }
-        break
-    }
-  }
-
-  // header navigation
-  onPreviousMonthClicked(e: Event) {
-    this.moveToPreviousMonth()
-  }
-  onNextMonthClicked(e: Event) {
-    this.moveToNextMonth()
-  }
-  onPreviousYearClicked(e: Event) {
-    this.moveToPreviousYear()
-  }
-  onNextYearClicked(e: Event) {
-    this.moveToNextYear()
-  }
-
-  // move within grid
-  moveFocusToPreviousDay() {
-    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() - 1))
-  }
-  moveFocusToNextDay() {
-    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() + 1))
-  }
-  moveFocusToFirstDayOfWeek() {
-    this.focusDay = new Date(
-      this.focusDay.setDate(this.focusDay.getDate() - this.focusDay.getDay())
-    )
-  }
-  moveFocusToLastDayOfWeek() {
-    this.focusDay = new Date(
-      this.focusDay.setDate(
-        this.focusDay.getDate() + (6 - this.focusDay.getDay())
-      )
-    )
-  }
-  moveFocusToPreviousWeek() {
-    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() - 7))
-  }
-  moveFocusToNextWeek() {
-    this.focusDay = new Date(this.focusDay.setDate(this.focusDay.getDate() + 7))
-  }
-
-  // move to updated grid
-  moveToPreviousMonth() {
-    const d = new Date(this.focusDay)
-    this.focusDay = new Date(d.setMonth(d.getMonth() - 1))
-  }
-  moveToNextMonth() {
-    const d = new Date(this.focusDay)
-    this.focusDay = new Date(d.setMonth(d.getMonth() + 1))
-  }
-  moveToPreviousYear() {
-    const d = new Date(this.focusDay)
-    this.focusDay = new Date(d.setFullYear(d.getFullYear() - 1))
-  }
-  moveToNextYear() {
-    const d = new Date(this.focusDay)
-    this.focusDay = new Date(d.setFullYear(d.getFullYear() + 1))
+  onCalendarFocus(d: Date) {
+    this.focusDay = d
   }
 }
 </script>
@@ -312,6 +175,9 @@ export default class Datepicker extends Vue {
 <style lang="scss">
 @function em($value, $context: 16) {
   @return (1em * $value) / $context;
+}
+
+.datepicker-input {
 }
 
 .datepicker-button {
