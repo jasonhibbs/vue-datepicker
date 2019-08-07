@@ -4,7 +4,7 @@
     :class="classes"
   )
     .datepicker-input
-      .datepicker-text
+      .datepicker-field
         input(
           ref="input"
           :placeholder="placeholder"
@@ -177,15 +177,36 @@ export default class Datepicker extends Vue {
   @return (1em * $value) / $context;
 }
 
+@function shade($value) {
+  @return fade-out(black, (100 - $value) / 100);
+}
+
 .datepicker-input {
+  display: flex;
+}
+
+.datepicker-field {
+  flex: auto;
+
+  input {
+    width: 100%;
+  }
 }
 
 .datepicker-button {
   appearance: none;
+  background-color: transparent;
   border-color: transparent;
   cursor: pointer;
+  font-size: 1em;
   line-height: (22/16);
   padding: em(10) em(4);
+
+  &:focus,
+  &:hover {
+    background: shade(6);
+    outline: none;
+  }
 }
 
 .datepicker-header {
@@ -207,10 +228,10 @@ export default class Datepicker extends Vue {
 
 .datepicker-label._day {
   display: block;
-  color: #888;
+  color: shade(50);
   line-height: (22/16);
   font-weight: 500;
-  padding: em(4) em(4);
+  padding: em(11) em(4);
 }
 
 .datepicker-grid {
@@ -235,23 +256,24 @@ export default class Datepicker extends Vue {
 
   &:focus,
   &:hover {
-    background: #eee;
-  }
-
-  ._disabled & {
-    color: #bbb;
+    background: shade(6);
+    outline: none;
   }
 
   ._weekend & {
-    color: #888;
+    color: shade(50);
+  }
+
+  ._disabled & {
+    color: shade(20);
   }
 
   ._today & {
-    border-color: #ddd;
+    border-color: shade(20);
   }
 
   ._selected & {
-    background: #444;
+    background: shade(80);
     color: white;
   }
 }
