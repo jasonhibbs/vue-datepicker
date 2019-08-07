@@ -4,19 +4,20 @@
     aria-labelledby="id-dialog-label"
   )
     thead
-      tr
-        th(
-          v-for="day in dayLabels"
+      tr.datepicker-row
+        th.datepicker-cell._day(
+          v-for="(day, index) in dayLabels"
           scope="col"
+          :class="{ _weekend: index > 4 }"
           :abbr="day"
           :title="day"
         )
-          span.datepicker-label._day {{ day.slice(0, 2) }}
+          span.datepicker-label._day {{ day.slice(0, 1) }}
 
     tbody
       tr.datepicker-row(
         v-for="row in 6"
-        v-if="row !== 6 || !lastRowHidden"
+        v-if="!hideRow(row)"
       )
         datepicker-day(
           v-for="column in 7"
@@ -75,11 +76,15 @@ export default class DatepickerGrid extends Vue {
 
   lastRowHidden: boolean = false
 
+  hideRow(row: number) {
+    return row === 6 && this.lastRowHidden
+  }
+
   get shownDays() {
     let fd = this.focusDay
     let firstDayOfMonth = new Date(fd.getFullYear(), fd.getMonth(), 1)
     let daysInMonth = new Date(fd.getFullYear(), fd.getMonth() + 1, 0).getDate()
-    let dayOfWeek = firstDayOfMonth.getDay()
+    let dayOfWeek = (firstDayOfMonth.getDay() + 6) % 7
     firstDayOfMonth.setDate(firstDayOfMonth.getDate() - dayOfWeek)
 
     let d = new Date(firstDayOfMonth)

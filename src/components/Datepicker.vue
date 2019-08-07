@@ -1,16 +1,19 @@
 <template lang="pug">
 
-  .datepicker
+  .datepicker(
+    :class="classes"
+  )
 
     .datepicker-text
       input(
+        ref="input"
         :placeholder="placeholder"
         :value="inputDate"
         @input="onInput($event.target.value)"
         @blur="onInputBlur"
       )
 
-    .datepicker-button
+    .datepicker-control
       button(
         @click="buttonClicked"
       ) Open Calendar
@@ -51,7 +54,14 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, PropSync, Vue, Watch } from 'vue-property-decorator'
+import {
+  Component,
+  Prop,
+  PropSync,
+  Ref,
+  Vue,
+  Watch,
+} from 'vue-property-decorator'
 import chrono from 'chrono-node'
 import DatepickerGrid from '@/components/DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
@@ -62,14 +72,16 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
   },
 })
 export default class Datepicker extends Vue {
-  @Prop() placeholder?: String
+  @Ref() input!: HTMLInputElement
   @PropSync('value') inputDate!: string
 
-  // handle value prop
-  // @PropSync('value') returnValue?: string
+  @Prop() placeholder?: String
+
+  get classes() {
+    return {}
+  }
 
   mounted() {
-    // accept initial input
     this.checkInput(this.inputDate)
     this.updateValueFromInput()
   }
@@ -80,13 +92,13 @@ export default class Datepicker extends Vue {
   selectedDay: Date | null = null
 
   dayLabels = [
-    'Sunday',
     'Monday',
     'Tuesday',
     'Wednesday',
     'Thursday',
     'Friday',
     'Saturday',
+    'Sunday',
   ]
 
   monthLabels = [
@@ -104,6 +116,11 @@ export default class Datepicker extends Vue {
     'December',
   ]
 
+  get monthYearLabel(): string {
+    const fd = this.focusDay
+    return `${this.monthLabels[fd.getMonth()]} ${fd.getFullYear()}`
+  }
+
   formatDate(date: Date) {
     const y = date
       .getFullYear()
@@ -117,26 +134,23 @@ export default class Datepicker extends Vue {
     return `${y}-${m}-${d}`
   }
 
-  get monthYearLabel(): string {
-    const fd = this.focusDay
-    return `${this.monthLabels[fd.getMonth()]} ${fd.getFullYear()}`
-  }
-
-  parseInput(d: string) {
-    let parsed = new Date(d)
-
-    if (chrono) {
-      parsed = chrono.en_GB.parseDate(d)
-    }
-
-    return parsed
-  }
-
   isDate(d?: Date | null) {
     return d instanceof Date && !isNaN(d.getTime())
   }
 
-  updateValue(d: Date | null) {
+  parseInput(d: string) {
+    let parsed = new Date(d)
+    if (chrono) {
+      parsed = chrono.en_GB.parseDate(d)
+    }
+    return parsed
+  }
+
+  checkInput(d: string) {
+    this.inputDay = this.parseInput(d)
+  }
+
+  emitValue(d: Date | null) {
     if (d && this.isDate(d)) {
       this.$emit('input', this.formatDate(d))
     } else {
@@ -144,23 +158,34 @@ export default class Datepicker extends Vue {
     }
   }
 
-  checkInput(d: string) {
-    this.inputDay = this.parseInput(d)
-  }
-
   get inputValid(): boolean {
     return this.isDate(this.inputDay)
   }
 
+  get isValid() {
+    return this.inputDay && this.inputValid
+  }
+
+  clearValues() {
+    this.focusDay = new Date()
+    this.selectedDay = null
+    this.emitValue(null)
+  }
+
+  updateValues(d: Date) {
+    this.focusDay = d
+    this.selectedDay = d
+    this.emitValue(d)
+  }
+
   updateValueFromInput() {
+    if (!this.input.value) {
+      this.clearValues()
+    }
+
+    // input is valid, update values
     if (this.inputDay && this.inputValid) {
-      this.focusDay = this.inputDay
-      this.selectedDay = this.inputDay
-      this.updateValue(this.inputDay)
-    } else {
-      this.focusDay = new Date()
-      this.selectedDay = null
-      this.updateValue(null)
+      this.updateValues(this.inputDay)
     }
   }
 
@@ -289,8 +314,21 @@ export default class Datepicker extends Vue {
 </script>
 
 <style lang="scss">
+@function em($value, $context: 16) {
+  @return (1em * $value) / $context;
+}
+
+.datepicker-button {
+  appearance: none;
+  border-color: transparent;
+  cursor: pointer;
+  line-height: (22/16);
+  padding: em(10) em(4);
+}
+
 .datepicker-header {
   display: flex;
+  align-items: center;
   text-align: center;
 
   h2 {
@@ -299,10 +337,22 @@ export default class Datepicker extends Vue {
     line-height: (20/16);
     margin: 0;
   }
+
+  button {
+    min-width: em(44);
+  }
+}
+
+.datepicker-label._day {
+  display: block;
+  color: #666;
+  line-height: (22/16);
+  padding: em(4) em(4);
 }
 
 .datepicker-grid {
   border-collapse: collapse;
+  width: 100%;
 
   td:first-child {
     padding-left: 0;
@@ -313,27 +363,32 @@ export default class Datepicker extends Vue {
 }
 
 .datepicker-cell {
-  button {
-    background: none;
-    line-height: (20/16);
-    padding: (8em/16) (10em/16);
-    width: 100%;
+  padding: 0;
+}
 
-    &:focus,
-    &:hover {
-      background: #eee;
-    }
-  }
+.datepicker-button._date {
+  background: none;
+  width: 100%;
 
-  &._today button {
+  &:focus,
+  &:hover {
     background: #eee;
   }
 
-  &._selected button {
-    background: #ddd;
+  ._today & {
+    border-color: #ddd;
   }
 
-  &._disabled button {
+  ._selected & {
+    background: #444;
+    color: white;
+  }
+
+  ._weekend & {
+    color: #666;
+  }
+
+  ._disabled & {
     color: #aaa;
   }
 }

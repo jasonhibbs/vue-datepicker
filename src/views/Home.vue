@@ -6,8 +6,6 @@
 
     p {{ pickedDate || 'No date' }}
 
-
-
 </template>
 
 <script lang="ts">
@@ -23,7 +21,7 @@ export default class Home extends Vue {
   pickedDate?: string = ''
 
   onInput(val: string) {
-    console.log(val)
+    // console.log(val)
   }
 }
 </script>
