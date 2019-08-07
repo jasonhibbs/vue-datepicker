@@ -27,6 +27,7 @@
       role="dialog"
       :id="`datepicker-dialog_${_uid}`"
       :aria-labelledby="`datepicker-calendar-label_${_uid}`"
+      @keydown.esc="onDialogEsc"
     )
       datepicker-calendar(
         :focussed="focusDay"
@@ -195,6 +196,11 @@ export default class Datepicker extends Vue {
 
   onCalendarFocus(d: Date) {
     this.focusDay = d
+  }
+
+  onDialogEsc() {
+    this.dialogExpanded = false
+    this.input.focus()
   }
 }
 </script>
