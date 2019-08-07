@@ -1,0 +1,61 @@
+$storybook-background: hsl(210, 50, 98);
+
+:root {
+  box-sizing: border-box;
+  height: 100%;
+  -webkit-font-smoothing: antialiased;
+  // background: mix(#036, white, 4) left top;
+  background-color: white;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+  line-height: 1.375;
+
+  $grid-lines-color: mix(#002, $storybook-background, 3);
+  background-image: repeating-linear-gradient(
+      to bottom,
+      $grid-lines-color,
+      $grid-lines-color 1px,
+      transparent 1px,
+      transparent 16px
+    ),
+    repeating-linear-gradient(
+      to right,
+      $grid-lines-color,
+      $grid-lines-color 1px,
+      transparent 1px,
+      transparent 16px
+    ),
+    repeating-linear-gradient(
+      to bottom,
+      $grid-lines-color,
+      $grid-lines-color 2px,
+      transparent 2px,
+      transparent 128px
+    ),
+    repeating-linear-gradient(
+      to right,
+      $grid-lines-color,
+      $grid-lines-color 2px,
+      transparent 2px,
+      transparent 128px
+    );
+}
+
+*,
+:before,
+:after {
+  box-sizing: inherit;
+}
+
+body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#root {
+  flex: auto;
+  width: 100%;
+  max-width: (372em/16);
+  padding: 2em 2em 5em;
+}

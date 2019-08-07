@@ -217,7 +217,7 @@ export default class Datepicker extends Vue {
 .datepicker {
   display: block;
   position: relative;
-  margin-bottom: em(12);
+  margin-bottom: em(16);
 }
 
 .datepicker-input {
@@ -267,7 +267,7 @@ export default class Datepicker extends Vue {
 }
 
 .datepicker-dialog {
-  margin-top: em(12);
+  margin-top: em(16);
 }
 
 .datepicker-header {
@@ -299,10 +299,10 @@ export default class Datepicker extends Vue {
   border-collapse: collapse;
   width: 100%;
 
-  td:first-child {
+  td:first-of-type {
     padding-left: 0;
   }
-  td:last-child {
+  td:last-of-type {
     padding-right: 0;
   }
 }

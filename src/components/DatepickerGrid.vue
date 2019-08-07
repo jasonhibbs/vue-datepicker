@@ -18,10 +18,12 @@
       tr.datepicker-row(
         v-for="row in 6"
         v-if="!hideRow(row)"
+        :key="row"
       )
         datepicker-day(
           v-for="column in 7"
           ref="days"
+          :key="column"
           :date="shownDays[dayIndex(row, column)]"
           @click="$emit('dateClick', $event)"
           @keydown="$emit('dateKeydown', $event)"
