@@ -2,9 +2,11 @@
 
   main
     h1 Datepicker
+    p Value: {{ pickedDate || 'No date' }}
+
     datepicker(v-model="pickedDate" @input="onInput")
 
-    p {{ pickedDate || 'No date' }}
+
 
 </template>
 

@@ -4,21 +4,30 @@
     :class="classes"
   )
     .datepicker-input
-      .datepicker-field
+      .datepicker-input-field
         input(
           ref="input"
           :placeholder="placeholder"
           :value="inputDate"
           @input="onInput($event.target.value)"
-          @blur="onInputBlur"
+          @change="onInputBlur"
         )
 
-      .datepicker-control
+      .datepicker-input-button
         button(
+          :id="`datepicker-control_${_uid}`"
+          :aria-label="buttonAriaLabel"
+          :aria-controls="`datepicker-dialog_${_uid}`"
+          :aria-expanded="dialogExpanded"
           @click="buttonClicked"
-        ) Open Calendar
+        ) 📅
 
-    .datepicker-dialog
+    .datepicker-dialog(
+      v-if="dialogExpanded"
+      role="dialog"
+      :id="`datepicker-dialog_${_uid}`"
+      :aria-labelledby="`datepicker-calendar-label_${_uid}`"
+    )
       datepicker-calendar(
         :focussed="focusDay"
         :selected="selectedDay"
@@ -53,23 +62,14 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
 })
 export default class Datepicker extends Vue {
   @Ref() input!: HTMLInputElement
+  @Prop() placeholder?: String
   @PropSync('value') inputDate!: string
 
-  @Prop() placeholder?: String
-
-  get classes() {
-    return {}
-  }
-
-  mounted() {
-    this.checkInput(this.inputDate)
-    this.updateValueFromInput()
-  }
-
   inputDay?: Date
-
   focusDay = new Date()
   selectedDay: Date | null = null
+
+  dialogExpanded: boolean = false
 
   dayLabels = [
     'Monday',
@@ -81,7 +81,26 @@ export default class Datepicker extends Vue {
     'Sunday',
   ]
 
-  formatDate(date: Date) {
+  get classes() {
+    return {}
+  }
+
+  mounted() {
+    this.checkInput(this.inputDate)
+    this.updateValueFromInput()
+  }
+
+  formatStringDate(date: Date) {
+    const options = {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    }
+    return date.toLocaleDateString(undefined, options)
+  }
+
+  formatReturnDate(date: Date) {
     const y = date
       .getFullYear()
       .toString()
@@ -112,7 +131,7 @@ export default class Datepicker extends Vue {
 
   emitValue(d: Date | null) {
     if (d && this.isDate(d)) {
-      this.$emit('input', this.formatDate(d))
+      this.$emit('input', this.formatReturnDate(d))
     } else {
       this.$emit('input', null)
     }
@@ -157,8 +176,16 @@ export default class Datepicker extends Vue {
     this.updateValueFromInput()
   }
 
+  get buttonAriaLabel() {
+    let label = 'Choose Date'
+    if (this.selectedDay) {
+      label += `, selected date is ${this.formatStringDate(this.selectedDay)}`
+    }
+    return label
+  }
+
   buttonClicked() {
-    // toggle calendar
+    this.dialogExpanded = !this.dialogExpanded
   }
 
   onCalendarInput(d: Date) {
@@ -181,15 +208,39 @@ export default class Datepicker extends Vue {
   @return fade-out(black, (100 - $value) / 100);
 }
 
-.datepicker-input {
-  display: flex;
+.datepicker {
+  display: block;
+  position: relative;
+  margin-bottom: em(12);
 }
 
-.datepicker-field {
+.datepicker-input {
+  display: flex;
+  position: relative;
+}
+
+.datepicker-input-field {
   flex: auto;
 
   input {
+    padding-right: 2em;
     width: 100%;
+  }
+}
+
+.datepicker-input-button {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+
+  button {
+    appearance: none;
+    background-color: transparent;
+    border-color: transparent;
+    cursor: pointer;
+    font-size: 1em;
+    padding: em(2) em(4);
   }
 }
 
@@ -207,6 +258,10 @@ export default class Datepicker extends Vue {
     background: shade(6);
     outline: none;
   }
+}
+
+.datepicker-dialog {
+  margin-top: em(12);
 }
 
 .datepicker-header {
@@ -275,6 +330,11 @@ export default class Datepicker extends Vue {
   ._selected & {
     background: shade(80);
     color: white;
+
+    &:focus,
+    &:hover {
+      background: shade(70);
+    }
   }
 }
 

@@ -12,6 +12,7 @@
       h2.datepicker-label._month-year#id-dialog-label(
         class="monthYear"
         aria-live="polite"
+        :id="`datepicker-calendar-label_${$parent._uid}`"
       ) {{ monthYearLabel }}
       button.datepicker-button._next-month(
         aria-label="Next month"
