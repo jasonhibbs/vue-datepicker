@@ -117,8 +117,9 @@ export default class Datepicker extends Vue {
   ]
 
   get monthYearLabel(): string {
-    const fd = this.focusDay
-    return `${this.monthLabels[fd.getMonth()]} ${fd.getFullYear()}`
+    const m = this.focusDay.getMonth()
+    const y = this.focusDay.getFullYear()
+    return `${this.monthLabels[m]} ${y}`
   }
 
   formatDate(date: Date) {
@@ -204,9 +205,8 @@ export default class Datepicker extends Vue {
   onDateClicked(day: DatepickerGridDay) {
     // we should update the focus in any case
     this.focusDay = day.date
-
+    // day was selected
     if (!day.disabled) {
-      // day was selected
       this.selectedDay = day.date
       this.$emit('input', this.formatDate(day.date))
     }
@@ -291,24 +291,20 @@ export default class Datepicker extends Vue {
 
   // move to updated grid
   moveToPreviousMonth() {
-    this.focusDay = new Date(
-      this.focusDay.setMonth(this.focusDay.getMonth() - 1)
-    )
+    const d = new Date(this.focusDay)
+    this.focusDay = new Date(d.setMonth(d.getMonth() - 1))
   }
   moveToNextMonth() {
-    this.focusDay = new Date(
-      this.focusDay.setMonth(this.focusDay.getMonth() + 1)
-    )
+    const d = new Date(this.focusDay)
+    this.focusDay = new Date(d.setMonth(d.getMonth() + 1))
   }
   moveToPreviousYear() {
-    this.focusDay = new Date(
-      this.focusDay.setFullYear(this.focusDay.getFullYear() - 1)
-    )
+    const d = new Date(this.focusDay)
+    this.focusDay = new Date(d.setFullYear(d.getFullYear() - 1))
   }
   moveToNextYear() {
-    this.focusDay = new Date(
-      this.focusDay.setFullYear(this.focusDay.getFullYear() + 1)
-    )
+    const d = new Date(this.focusDay)
+    this.focusDay = new Date(d.setFullYear(d.getFullYear() + 1))
   }
 }
 </script>
@@ -345,8 +341,9 @@ export default class Datepicker extends Vue {
 
 .datepicker-label._day {
   display: block;
-  color: #666;
+  color: #888;
   line-height: (22/16);
+  font-weight: 500;
   padding: em(4) em(4);
 }
 
@@ -375,6 +372,14 @@ export default class Datepicker extends Vue {
     background: #eee;
   }
 
+  ._disabled & {
+    color: #bbb;
+  }
+
+  ._weekend & {
+    color: #888;
+  }
+
   ._today & {
     border-color: #ddd;
   }
@@ -383,14 +388,10 @@ export default class Datepicker extends Vue {
     background: #444;
     color: white;
   }
+}
 
-  ._weekend & {
-    color: #666;
-  }
-
-  ._disabled & {
-    color: #aaa;
-  }
+.datepicker-label._date {
+  font-variant-numeric: tabular-nums;
 }
 </style>
 
