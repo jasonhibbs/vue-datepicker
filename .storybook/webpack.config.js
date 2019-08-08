@@ -2,7 +2,7 @@ const path = require('path')
 const autoprefixer = require('autoprefixer')
 const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin')
 
-// Resources
+// References
 // https://stackoverflow.com/questions/56241876/storybook-with-vue-in-typescript-how-to-import-from-a-storybook-ts-file-webpac
 // https://gist.github.com/aaronfullerton/48a52d99763b68fd6bb5d84a4f4d44b2
 

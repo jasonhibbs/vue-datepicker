@@ -8,6 +8,7 @@
         input(
           ref="input"
           :placeholder="placeholder"
+          :required="required"
           :value="inputDate"
           @input="onInput($event.target.value)"
           @change="onInputBlur"
@@ -20,7 +21,8 @@
           :aria-controls="`datepicker-dialog_${_uid}`"
           :aria-expanded="dialogExpanded"
           @click="buttonClicked"
-        ) 📅
+        )
+          slot(name="button-label") 📅
 
     .datepicker-dialog(
       v-if="dialogExpanded"
@@ -36,6 +38,10 @@
         @focus="onCalendarFocus"
         @input="onCalendarInput"
       )
+        template(v-slot:button-label-prev-year)
+        template(v-slot:button-label-prev-month)
+        template(v-slot:button-label-next-month)
+        template(v-slot:button-label-next-year)
 
       </table>
 
@@ -62,9 +68,12 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
   },
 })
 export default class Datepicker extends Vue {
-  @Ref() input!: HTMLInputElement
+  @PropSync('value', { default: '' }) inputDate!: string
+
   @Prop() placeholder?: String
-  @PropSync('value') inputDate!: string
+  @Prop() required?: Boolean
+
+  @Ref() input!: HTMLInputElement
 
   inputDay?: Date
   focusDay = new Date()
@@ -210,8 +219,8 @@ export default class Datepicker extends Vue {
   @return (1em * $value) / $context;
 }
 
-@function shade($value) {
-  @return fade-out(black, (100 - $value) / 100);
+@function shade($value, $black: black) {
+  @return fade-out($black, (100 - $value) / 100);
 }
 
 .datepicker {
@@ -239,12 +248,14 @@ export default class Datepicker extends Vue {
   top: 0;
   right: 0;
   bottom: 0;
+  height: 100%;
 
   button {
     appearance: none;
     background-color: transparent;
     border-color: transparent;
     cursor: pointer;
+    height: 100%;
     font-size: 1em;
     padding: em(2) em(4);
   }
@@ -253,7 +264,7 @@ export default class Datepicker extends Vue {
 .datepicker-button {
   appearance: none;
   background-color: transparent;
-  border-color: transparent;
+  border: 1px solid transparent;
   cursor: pointer;
   font-size: 1em;
   line-height: (22/16);
@@ -268,6 +279,8 @@ export default class Datepicker extends Vue {
 
 .datepicker-dialog {
   margin-top: em(16);
+  background: white;
+  box-shadow: 0 0 0 1px shade(20);
 }
 
 .datepicker-header {
@@ -293,10 +306,12 @@ export default class Datepicker extends Vue {
   line-height: (22/16);
   font-weight: 500;
   padding: em(11) em(4);
+  box-shadow: 0 1px 0 shade(6);
 }
 
 .datepicker-grid {
   border-collapse: collapse;
+  table-layout: fixed;
   width: 100%;
 
   td:first-of-type {
@@ -312,7 +327,6 @@ export default class Datepicker extends Vue {
 }
 
 .datepicker-button._date {
-  background: none;
   width: 100%;
 
   &:focus,

@@ -1,27 +1,39 @@
 <template lang="pug">
   .datepicker-calendar
     .datepicker-header
-      button.datepicker-button._previous-year(
+      button.datepicker-button._prev-year(
         aria-label="Previous year"
         @click="onPreviousYearClicked"
-      ) ⏪
-      button.datepicker-button._previous-month(
+      )
+        slot(name="button-label-prev-year")
+          .datepicker-label._prev-year(style="font-family: emojisymbols") ⏪
+
+      button.datepicker-button._prev-month(
         aria-label="Previous month"
         @click="onPreviousMonthClicked"
-      ) ◀️
+      )
+        slot(name="button-label-prev-month")
+          .datepicker-label._prev-month(style="font-family: emojisymbols") ◀️
+
       h2.datepicker-label._month-year#id-dialog-label(
         class="monthYear"
         aria-live="polite"
         :id="`datepicker-calendar-label_${$parent._uid}`"
       ) {{ monthYearLabel }}
+
       button.datepicker-button._next-month(
         aria-label="Next month"
         @click="onNextMonthClicked"
-      ) ▶️
+      )
+        slot(name="button-label-next-month")
+          .datepicker-label._next-month(style="font-family: emojisymbols") ▶️
+
       button.datepicker-button._next-year(
         aria-label="Next year"
         @click="onNextYearClicked"
-      ) ⏩
+      )
+        slot(name="button-label-next-year")
+          .datepicker-label._next-year(style="font-family: emojisymbols") ⏩
 
     datepicker-grid(
       :focussed="focusDay"
