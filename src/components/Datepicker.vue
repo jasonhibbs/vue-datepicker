@@ -7,6 +7,9 @@
       .datepicker-input-field
         input(
           ref="input"
+          autocapitalize="off"
+          autocomplete="off"
+          spellcheck="false"
           :placeholder="placeholder"
           :required="required"
           :value="inputDate"
@@ -22,7 +25,7 @@
           :aria-expanded="dialogExpanded"
           @click="onToggleClick"
         )
-          slot(name="button-label") 📅
+          slot(name="button-label-toggle") 📅
 
     .datepicker-dialog(
       v-if="dialogExpanded"
@@ -39,9 +42,13 @@
         @input="onCalendarInput"
       )
         template(v-slot:button-label-prev-year)
+          slot(name="button-label-prev-year")
         template(v-slot:button-label-prev-month)
+          slot(name="button-label-prev-month")
         template(v-slot:button-label-next-month)
+          slot(name="button-label-next-month")
         template(v-slot:button-label-next-year)
+          slot(name="button-label-next-year")
 
       .datepicker-actions
         button.datepicker-button(type="button" @click="onTodayClick")
