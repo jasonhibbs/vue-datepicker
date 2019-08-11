@@ -20,7 +20,7 @@
       .datepicker-input-button
         button(
           :id="`datepicker-control_${_uid}`"
-          :aria-label="buttonAriaLabel"
+          :aria-label="toggleARIALabel"
           :aria-controls="`datepicker-dialog_${_uid}`"
           :aria-expanded="dialogExpanded"
           @click="onToggleClick"
@@ -86,7 +86,7 @@ export default class Datepicker extends Vue {
   @PropSync('value', { default: '' }) inputDate!: string
 
   @Prop() placeholder?: String
-  @Prop() required?: Boolean
+  @Prop({ default: false, type: Boolean }) required?: boolean
 
   @Ref() input!: HTMLInputElement
 
@@ -107,12 +107,24 @@ export default class Datepicker extends Vue {
   ]
 
   get classes() {
-    return {}
+    return {
+      _valid: this.isValid,
+      _invalid: !this.isValid,
+      _required: this.required,
+    }
   }
 
   mounted() {
     this.checkInput(this.inputDate)
     this.updateValueFromInput()
+  }
+
+  get toggleARIALabel() {
+    let label = 'Choose Date'
+    if (this.selectedDay) {
+      label += `, selected date is ${this.formatStringDate(this.selectedDay)}`
+    }
+    return label
   }
 
   formatStringDate(date: Date) {
@@ -162,14 +174,6 @@ export default class Datepicker extends Vue {
     }
   }
 
-  get inputValid(): boolean {
-    return this.isDate(this.inputDay)
-  }
-
-  get isValid() {
-    return this.inputDay && this.inputValid
-  }
-
   clearValues() {
     this.focusDay = new Date()
     this.selectedDay = null
@@ -193,20 +197,20 @@ export default class Datepicker extends Vue {
     }
   }
 
+  get inputValid(): boolean {
+    return this.isDate(this.inputDay)
+  }
+
+  get isValid(): boolean {
+    return !this.required || !!this.selectedDay
+  }
+
   onInput(d: string) {
     this.checkInput(d)
   }
 
   onInputChange() {
     this.updateValueFromInput()
-  }
-
-  get buttonAriaLabel() {
-    let label = 'Choose Date'
-    if (this.selectedDay) {
-      label += `, selected date is ${this.formatStringDate(this.selectedDay)}`
-    }
-    return label
   }
 
   onToggleClick() {
