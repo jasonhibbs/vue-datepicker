@@ -11,7 +11,7 @@
           :required="required"
           :value="inputDate"
           @input="onInput($event.target.value)"
-          @change="onInputBlur"
+          @change="onInputChange"
         )
 
       .datepicker-input-button
@@ -20,7 +20,7 @@
           :aria-label="buttonAriaLabel"
           :aria-controls="`datepicker-dialog_${_uid}`"
           :aria-expanded="dialogExpanded"
-          @click="buttonClicked"
+          @click="onToggleClick"
         )
           slot(name="button-label") 📅
 
@@ -42,6 +42,14 @@
         template(v-slot:button-label-prev-month)
         template(v-slot:button-label-next-month)
         template(v-slot:button-label-next-year)
+
+      .datepicker-actions
+        button.datepicker-button(type="button" @click="onTodayClick")
+          slot(name="button-label-today")
+            .datepicker-label._today Today
+        button.datepicker-button(type="button" @click="onClearClick")
+          slot(name="button-label-clear")
+            .datepicker-label._clear Clear
 
       </table>
 
@@ -182,7 +190,7 @@ export default class Datepicker extends Vue {
     this.checkInput(d)
   }
 
-  onInputBlur() {
+  onInputChange() {
     this.updateValueFromInput()
   }
 
@@ -194,8 +202,16 @@ export default class Datepicker extends Vue {
     return label
   }
 
-  buttonClicked() {
+  onToggleClick() {
     this.dialogExpanded = !this.dialogExpanded
+  }
+
+  onTodayClick() {
+    this.updateValues(new Date())
+  }
+
+  onClearClick() {
+    this.clearValues()
   }
 
   onCalendarInput(d: Date) {
@@ -360,6 +376,16 @@ export default class Datepicker extends Vue {
 
 .datepicker-label._date {
   font-variant-numeric: tabular-nums;
+}
+
+.datepicker-actions {
+  display: flex;
+  background: white;
+  box-shadow: 0 -1px 0 shade(6);
+
+  button {
+    flex: auto;
+  }
 }
 </style>
 
