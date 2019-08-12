@@ -12,9 +12,10 @@
           spellcheck="false"
           :placeholder="placeholder"
           :required="required"
-          :value="inputDate"
+          :value="value"
           @input="onInput($event.target.value)"
           @change="onInputChange"
+          @blur="onInputBlur"
         )
 
       .datepicker-input-button
@@ -84,7 +85,7 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
   },
 })
 export default class Datepicker extends Vue {
-  @PropSync('value', { default: '' }) inputDate!: string
+  @Prop({ default: '' }) value!: string
 
   @Prop() placeholder?: String
   @Prop({ default: false, type: Boolean }) required?: boolean
@@ -95,6 +96,7 @@ export default class Datepicker extends Vue {
   focusDay = new Date()
   selectedDay: Date | null = null
 
+  touched: boolean = false
   dialogExpanded: boolean = false
 
   dayLabels = [
@@ -116,7 +118,7 @@ export default class Datepicker extends Vue {
   }
 
   mounted() {
-    this.checkInput(this.inputDate)
+    this.checkInput(this.value)
     this.updateValueFromInput()
   }
 
@@ -206,6 +208,15 @@ export default class Datepicker extends Vue {
     return !this.required || !!this.selectedDay
   }
 
+  openDialog() {
+    this.dialogExpanded = true
+  }
+
+  closeDialog() {
+    this.dialogExpanded = false
+    this.touched = true
+  }
+
   onInput(d: string) {
     this.checkInput(d)
   }
@@ -214,8 +225,16 @@ export default class Datepicker extends Vue {
     this.updateValueFromInput()
   }
 
+  onInputBlur() {
+    this.touched = true
+  }
+
   onToggleClick() {
-    this.dialogExpanded = !this.dialogExpanded
+    if (this.dialogExpanded) {
+      this.closeDialog()
+    } else {
+      this.openDialog()
+    }
   }
 
   onTodayClick() {
@@ -237,6 +256,7 @@ export default class Datepicker extends Vue {
 
   onDialogEsc() {
     this.dialogExpanded = false
+    this.touched = true
     this.input.focus()
   }
 }
