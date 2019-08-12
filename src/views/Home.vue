@@ -4,7 +4,7 @@
     h1 Datepicker
     p Value: {{ pickedDate || 'No date' }}
 
-    datepicker(v-model="pickedDate" @input="onInput")
+    datepicker(required v-model="pickedDate" @input="onInput")
 
 
 

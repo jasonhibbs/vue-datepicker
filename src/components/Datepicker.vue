@@ -25,7 +25,8 @@
           :aria-expanded="dialogExpanded"
           @click="onToggleClick"
         )
-          slot(name="button-label-toggle") 📅
+          slot(name="button-label-toggle")
+            .datepicker-label._toggle 📅
 
     .datepicker-dialog(
       v-if="dialogExpanded"
