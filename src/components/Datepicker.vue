@@ -44,6 +44,10 @@
         slot(name="button-label-next-month")
       template(v-slot:button-label-next-year)
         slot(name="button-label-next-year")
+      template(v-slot:button-label-today)
+        slot(name="button-label-today")
+      template(v-slot:button-label-clear)
+        slot(name="button-label-clear")
 
 
 </template>
@@ -76,6 +80,9 @@ export default class Datepicker extends Vue {
 
   @Prop() placeholder?: String
   @Prop({ default: false, type: Boolean }) required?: boolean
+
+  @Prop() dayLabels?: String[]
+  @Prop() monthLabels?: String[]
 
   @Ref() input!: HTMLInputElement
   @Ref() dialog!: DatepickerDialog

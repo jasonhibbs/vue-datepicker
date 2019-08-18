@@ -12,6 +12,7 @@
       :focussed="focusDay"
       :selected="selectedDay"
       :dayLabels="dayLabels"
+      :monthLabels="monthLabels"
       @focus="onCalendarFocus"
       @input="onCalendarInput"
       @tabOut="onFirstButtonTab"
@@ -29,12 +30,14 @@
       button.datepicker-button(
         ref="buttonToday"
         type="button"
+        aria-label="Set date to Today"
         @click="onTodayClick")
         slot(name="button-label-today")
           .datepicker-label._today Today
       button.datepicker-button(
         ref="buttonClear"
         type="button"
+        aria-label="Clear date"
         @click="onClearClick"
         @keydown.tab="onLastButtonTab")
         slot(name="button-label-clear")
@@ -42,7 +45,7 @@
 
 </template>
 <script lang="ts">
-import { Component, PropSync, Ref, Vue } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Ref, Vue } from 'vue-property-decorator'
 import DatepickerCalendar from '@/components/DatepickerCalendar.vue'
 import DatepickerGrid from '@/components/DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
@@ -61,15 +64,8 @@ export default class DatepickerDialog extends Vue {
   @Ref() buttonToday!: HTMLButtonElement
   @Ref() buttonClear!: HTMLButtonElement
 
-  dayLabels = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ]
+  @Prop() dayLabels?: String[]
+  @Prop() monthLabels?: String[]
 
   focus() {
     this.calendar.focus()

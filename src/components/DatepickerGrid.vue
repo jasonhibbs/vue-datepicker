@@ -41,10 +41,23 @@ import DatepickerDay from '@/components/DatepickerDay.vue'
   },
 })
 export default class DatepickerGrid extends Vue {
-  @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
   @PropSync('selected') selectedDay?: Date
+
   @Ref('days') gridDays!: DatepickerDay[]
+
+  @Prop({
+    default: [
+      'Monday',
+      'Tuesday',
+      'Wednesday',
+      'Thursday',
+      'Friday',
+      'Saturday',
+      'Sunday',
+    ],
+  })
+  dayLabels!: String[]
 
   dayIndex(row: number, column: number) {
     return (row - 1) * 7 + (column - 1)

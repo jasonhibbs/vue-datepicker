@@ -60,7 +60,6 @@ import { DatepickerGridDay } from './DatepickerDay.vue'
   },
 })
 export default class DatepickerCalendar extends Vue {
-  @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
   @PropSync('selected') selectedDay?: Date
 
@@ -70,20 +69,25 @@ export default class DatepickerCalendar extends Vue {
   @Ref() buttonNextMonth!: HTMLButtonElement
   @Ref() buttonNextYear!: HTMLButtonElement
 
-  monthLabels = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-  ]
+  @Prop() dayLabels?: String[]
+
+  @Prop({
+    default: [
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December',
+    ],
+  })
+  monthLabels!: String[]
 
   private get monthYearLabel(): string {
     const m = this.focusDay.getMonth()

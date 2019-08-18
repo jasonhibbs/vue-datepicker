@@ -13,11 +13,14 @@ import DatepickerInput from '../src/components/DatepickerInput'
 
 storiesOf('DatepickerInput', module).add('Default', () => ({
   components: { DatepickerInput },
-  template: `<datepicker-input v-model="value"></datepicker-input>`,
+  template: `<datepicker-input v-model="value" @input="onInput"></datepicker-input>`,
   data() {
     return {
       value: '',
     }
+  },
+  methods: {
+    onInput: action('input', event),
   },
 }))
 
@@ -52,7 +55,7 @@ storiesOf('Datepicker', module)
         <template v-slot:button-label-prev-year>←←</template>
         <template v-slot:button-label-next-year>→→</template>
         <template v-slot:button-label-toggle>📆</template>
-        <template v-slot:button-label-today>⭕️</template>
+        <template v-slot:button-label-today>🎯</template>
         <template v-slot:button-label-clear>❌</template>
       </datepicker>
     `,
