@@ -26,8 +26,7 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
-import Datepicker from '@/components/Datepicker.vue'
-import DatepickerInput from '@/components/DatepickerInput.vue'
+import { Datepicker, DatepickerInput } from '@/components/Datepicker'
 
 @Component({
   components: {

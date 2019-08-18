@@ -46,8 +46,8 @@
 </template>
 <script lang="ts">
 import { Component, Prop, PropSync, Ref, Vue } from 'vue-property-decorator'
-import DatepickerCalendar from '@/components/DatepickerCalendar.vue'
-import DatepickerGrid from '@/components/DatepickerGrid.vue'
+import DatepickerCalendar from './DatepickerCalendar.vue'
+import DatepickerGrid from './DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
 
 @Component({

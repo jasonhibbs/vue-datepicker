@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import { Component, Prop, PropSync, Ref, Vue } from 'vue-property-decorator'
-import DatepickerDay from '@/components/DatepickerDay.vue'
+import DatepickerDay from './DatepickerDay.vue'
 
 @Component({
   components: {
@@ -47,7 +47,7 @@ export default class DatepickerGrid extends Vue {
   @Ref('days') gridDays!: DatepickerDay[]
 
   @Prop({
-    default: [
+    default: () => [
       'Monday',
       'Tuesday',
       'Wednesday',

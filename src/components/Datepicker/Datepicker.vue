@@ -63,8 +63,8 @@ import {
 } from 'vue-property-decorator'
 import chrono from 'chrono-node'
 import vClickOutside from 'v-click-outside'
-import DatepickerInput from '@/components/DatepickerInput.vue'
-import DatepickerDialog from '@/components/DatepickerDialog.vue'
+import DatepickerInput from './DatepickerInput.vue'
+import DatepickerDialog from './DatepickerDialog.vue'
 
 @Component({
   components: {
@@ -296,6 +296,9 @@ export default class Datepicker extends Vue {
   margin-top: em(16);
   background: white;
   box-shadow: 0 0 0 1px shade(20);
+  position: absolute;
+  top: 100%;
+  right: 0;
 }
 
 .datepicker-header {
