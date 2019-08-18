@@ -2,13 +2,16 @@
   .datepicker-calendar
     .datepicker-header
       button.datepicker-button._prev-year(
+        ref="buttonPrevYear"
         aria-label="Previous year"
         @click="onPreviousYearClicked"
+        @keydown.tab="onFirstButtonTab"
       )
         slot(name="button-label-prev-year")
           .datepicker-label._prev-year(style="font-family: emojisymbols") ⏪
 
       button.datepicker-button._prev-month(
+        ref="buttonPrevMonth"
         aria-label="Previous month"
         @click="onPreviousMonthClicked"
       )
@@ -22,6 +25,7 @@
       ) {{ monthYearLabel }}
 
       button.datepicker-button._next-month(
+        ref="buttonNextMonth"
         aria-label="Next month"
         @click="onNextMonthClicked"
       )
@@ -29,6 +33,7 @@
           .datepicker-label._next-month(style="font-family: emojisymbols") ▶️
 
       button.datepicker-button._next-year(
+        ref="buttonNextYear"
         aria-label="Next year"
         @click="onNextYearClicked"
       )
@@ -58,7 +63,12 @@ export default class DatepickerCalendar extends Vue {
   @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
   @PropSync('selected') selectedDay?: Date
+
   @Ref() grid!: DatepickerGrid
+  @Ref() buttonPrevYear!: HTMLButtonElement
+  @Ref() buttonPrevMonth!: HTMLButtonElement
+  @Ref() buttonNextMonth!: HTMLButtonElement
+  @Ref() buttonNextYear!: HTMLButtonElement
 
   monthLabels = [
     'January',
@@ -75,7 +85,7 @@ export default class DatepickerCalendar extends Vue {
     'December',
   ]
 
-  get monthYearLabel(): string {
+  private get monthYearLabel(): string {
     const m = this.focusDay.getMonth()
     const y = this.focusDay.getFullYear()
     return `${this.monthLabels[m]} ${y}`
@@ -85,15 +95,26 @@ export default class DatepickerCalendar extends Vue {
     this.grid.focus()
   }
 
-  updateFocus(d: Date) {
+  focusFirstButton() {
+    this.buttonPrevYear.focus()
+  }
+
+  private onFirstButtonTab(e: KeyboardEvent) {
+    if (e.shiftKey) {
+      e.preventDefault()
+      this.$emit('tabOut')
+    }
+  }
+
+  private updateFocus(d: Date) {
     this.$emit('focus', d)
   }
 
-  updateSelected(d: Date) {
+  private updateSelected(d: Date) {
     this.$emit('input', d)
   }
 
-  onDateClicked(day: DatepickerGridDay) {
+  private onDateClicked(day: DatepickerGridDay) {
     // we should update the focus in any case
     this.updateFocus(day.date)
 
@@ -103,7 +124,7 @@ export default class DatepickerCalendar extends Vue {
     }
   }
 
-  onDateKeydown(e: KeyboardEvent) {
+  private onDateKeydown(e: KeyboardEvent) {
     switch (e.key) {
       case 'ArrowLeft':
         this.moveFocusToPreviousDay()
@@ -141,16 +162,16 @@ export default class DatepickerCalendar extends Vue {
   }
 
   // header navigation
-  onPreviousMonthClicked(e: Event) {
+  private onPreviousMonthClicked(e: Event) {
     this.moveToPreviousMonth()
   }
-  onNextMonthClicked(e: Event) {
+  private onNextMonthClicked(e: Event) {
     this.moveToNextMonth()
   }
-  onPreviousYearClicked(e: Event) {
+  private onPreviousYearClicked(e: Event) {
     this.moveToPreviousYear()
   }
-  onNextYearClicked(e: Event) {
+  private onNextYearClicked(e: Event) {
     this.moveToNextYear()
   }
 

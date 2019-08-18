@@ -42,4 +42,7 @@ export default class Home extends Vue {
     console.log(val)
   }
 }
+
+// TODO
+// Calendar steals focus when open, e.g. 12-1
 </script>

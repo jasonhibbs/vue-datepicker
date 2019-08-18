@@ -91,6 +91,10 @@ export default class DatepickerInput extends Vue {
       this.input.value = this.returnDate
     }
 
+    if (!this.value) {
+      this.input.value = ''
+    }
+
     this.$emit('input', this.returnDate)
   }
 

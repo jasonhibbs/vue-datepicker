@@ -18,7 +18,7 @@
       .datepicker-field-toggle
         button.datepicker-toggle(
           :id="`datepicker-control_${_uid}`"
-          :aria-label="toggleARIALabel"
+          :aria-label="buttonToggleLabel"
           :aria-controls="`datepicker-dialog_${_uid}`"
           :aria-expanded="dialogExpanded"
           @click="onToggleClick"
@@ -34,6 +34,7 @@
       @focus="onCalendarFocus"
       @input="onCalendarInput"
       @esc="onDialogEsc"
+      v-click-outside="onDialogClickOutside"
     )
       template(v-slot:button-label-prev-year)
         slot(name="button-label-prev-year")
@@ -57,6 +58,7 @@ import {
   Watch,
 } from 'vue-property-decorator'
 import chrono from 'chrono-node'
+import vClickOutside from 'v-click-outside'
 import DatepickerInput from '@/components/DatepickerInput.vue'
 import DatepickerDialog from '@/components/DatepickerDialog.vue'
 
@@ -64,6 +66,9 @@ import DatepickerDialog from '@/components/DatepickerDialog.vue'
   components: {
     DatepickerInput,
     DatepickerDialog,
+  },
+  directives: {
+    clickOutside: vClickOutside.directive,
   },
 })
 export default class Datepicker extends Vue {
@@ -109,7 +114,7 @@ export default class Datepicker extends Vue {
 
   // Strings
 
-  get toggleARIALabel() {
+  private get buttonToggleLabel() {
     let label = 'Choose Date'
     if (this.selectedDay) {
       label += `, selected date is ${this.formatLabelDate(this.selectedDay)}`
@@ -117,7 +122,7 @@ export default class Datepicker extends Vue {
     return label
   }
 
-  formatLabelDate(date: Date) {
+  private formatLabelDate(date: Date) {
     const options = {
       weekday: 'long',
       year: 'numeric',
@@ -127,7 +132,7 @@ export default class Datepicker extends Vue {
     return date.toLocaleDateString(undefined, options)
   }
 
-  formatReturnDate(date: Date) {
+  private formatReturnDate(date: Date) {
     const y = date
       .getFullYear()
       .toString()
@@ -142,7 +147,7 @@ export default class Datepicker extends Vue {
 
   // Input
 
-  onInputChange(val: string) {
+  private onInputChange(val: string) {
     if (val) {
       this.focusDay = new Date(val)
       this.selectedDay = new Date(val)
@@ -151,15 +156,15 @@ export default class Datepicker extends Vue {
     this.$emit('input', val)
   }
 
-  onInputBlur() {
+  private onInputBlur() {
     this.touched = true
   }
 
-  onInputValid() {
+  private onInputValid() {
     this.inputValid = true
   }
 
-  onInputInvalid() {
+  private onInputInvalid() {
     this.inputValid = false
   }
 
@@ -177,25 +182,30 @@ export default class Datepicker extends Vue {
     this.touched = true
   }
 
-  onDialogEsc() {
+  private onDialogEsc() {
     this.dialogExpanded = false
     this.input.focus()
   }
 
-  // Calendar
-
-  onCalendarInput(d: Date) {
-    this.selectedDay = d
-    this.inputValue = d ? this.formatReturnDate(d) : ''
+  private onDialogClickOutside() {
+    this.dialogExpanded = false
   }
 
-  onCalendarFocus(d: Date) {
+  // Calendar
+
+  private onCalendarInput(d: Date) {
+    this.selectedDay = d
+    this.inputValue = d ? this.formatReturnDate(d) : ''
+    this.closeDialog()
+  }
+
+  private onCalendarFocus(d: Date) {
     this.focusDay = d
   }
 
   // Toggle
 
-  onToggleClick() {
+  private onToggleClick() {
     if (this.dialogExpanded) {
       this.closeDialog()
     } else {
