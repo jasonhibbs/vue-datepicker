@@ -170,6 +170,14 @@ export default class Datepicker extends Vue {
 
   // Dialog
 
+  @Watch('dialogExpanded') onDialogChange() {
+    if (this.dialogExpanded) {
+      this.$emit('calendarOpen')
+    } else {
+      this.$emit('calendarClose')
+    }
+  }
+
   openDialog() {
     this.dialogExpanded = true
     this.$nextTick(() => {
@@ -179,7 +187,6 @@ export default class Datepicker extends Vue {
 
   closeDialog() {
     this.dialogExpanded = false
-    this.touched = true
   }
 
   private onDialogEsc() {

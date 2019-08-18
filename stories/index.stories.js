@@ -5,7 +5,7 @@
 // https://github.com/storybookjs/storybook/tree/next/examples/vue-kitchen-sink
 
 import { storiesOf } from '@storybook/vue'
-// import { action } from '@storybook/addon-actions'
+import { action } from '@storybook/addon-actions'
 // import { linkTo } from '@storybook/addon-links'
 
 import Datepicker from '../src/components/Datepicker'
@@ -24,11 +24,23 @@ storiesOf('DatepickerInput', module).add('Default', () => ({
 storiesOf('Datepicker', module)
   .add('Default', () => ({
     components: { Datepicker },
-    template: `<datepicker v-model="value"></datepicker>`,
+    template: `
+      <datepicker
+        v-model="value"
+        @input="onInput"
+        @calendarOpen="onCalendarOpen"
+        @calendarClose="onCalendarClose"
+      ></datepicker>
+    `,
     data() {
       return {
         value: '',
       }
+    },
+    methods: {
+      onInput: action('input', event),
+      onCalendarOpen: action('calendar-open'),
+      onCalendarClose: action('calendar-close'),
     },
   }))
   .add('Slots', () => ({
