@@ -106,6 +106,10 @@ export default class DatepickerGrid extends Vue {
     return days
   }
 
+  focus() {
+    this.updateFocus()
+  }
+
   updated() {
     this.updateFocus()
   }

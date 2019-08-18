@@ -3,23 +3,20 @@
   .datepicker(
     :class="classes"
   )
-    .datepicker-input
-      .datepicker-input-field
-        input(
+    .datepicker-field
+      .datepicker-field-input
+        datepicker-input(
           ref="input"
-          autocapitalize="off"
-          autocomplete="off"
-          spellcheck="false"
-          :placeholder="placeholder"
           :required="required"
-          :value="value"
-          @input="onInput($event.target.value)"
-          @change="onInputChange"
+          :value="inputValue"
+          @valid="onInputValid"
+          @invalid="onInputInvalid"
+          @input="onInputChange"
           @blur="onInputBlur"
         )
 
-      .datepicker-input-button
-        button(
+      .datepicker-field-toggle
+        button.datepicker-toggle(
           :id="`datepicker-control_${_uid}`"
           :aria-label="toggleARIALabel"
           :aria-controls="`datepicker-dialog_${_uid}`"
@@ -29,38 +26,24 @@
           slot(name="button-label-toggle")
             .datepicker-label._toggle 📅
 
-    .datepicker-dialog(
+    datepicker-dialog(
+      ref="dialog"
       v-if="dialogExpanded"
-      role="dialog"
-      :id="`datepicker-dialog_${_uid}`"
-      :aria-labelledby="`datepicker-calendar-label_${_uid}`"
-      @keydown.esc="onDialogEsc"
+      :focussed="focusDay"
+      :selected="selectedDay"
+      @focus="onCalendarFocus"
+      @input="onCalendarInput"
+      @esc="onDialogEsc"
     )
-      datepicker-calendar(
-        :focussed="focusDay"
-        :selected="selectedDay"
-        :dayLabels="dayLabels"
-        @focus="onCalendarFocus"
-        @input="onCalendarInput"
-      )
-        template(v-slot:button-label-prev-year)
-          slot(name="button-label-prev-year")
-        template(v-slot:button-label-prev-month)
-          slot(name="button-label-prev-month")
-        template(v-slot:button-label-next-month)
-          slot(name="button-label-next-month")
-        template(v-slot:button-label-next-year)
-          slot(name="button-label-next-year")
+      template(v-slot:button-label-prev-year)
+        slot(name="button-label-prev-year")
+      template(v-slot:button-label-prev-month)
+        slot(name="button-label-prev-month")
+      template(v-slot:button-label-next-month)
+        slot(name="button-label-next-month")
+      template(v-slot:button-label-next-year)
+        slot(name="button-label-next-year")
 
-      .datepicker-actions
-        button.datepicker-button(type="button" @click="onTodayClick")
-          slot(name="button-label-today")
-            .datepicker-label._today Today
-        button.datepicker-button(type="button" @click="onClearClick")
-          slot(name="button-label-clear")
-            .datepicker-label._clear Clear
-
-      </table>
 
 </template>
 
@@ -74,14 +57,13 @@ import {
   Watch,
 } from 'vue-property-decorator'
 import chrono from 'chrono-node'
-import DatepickerCalendar from '@/components/DatepickerCalendar.vue'
-import DatepickerGrid from '@/components/DatepickerGrid.vue'
-import { DatepickerGridDay } from './DatepickerDay.vue'
+import DatepickerInput from '@/components/DatepickerInput.vue'
+import DatepickerDialog from '@/components/DatepickerDialog.vue'
 
 @Component({
   components: {
-    DatepickerCalendar,
-    DatepickerGrid,
+    DatepickerInput,
+    DatepickerDialog,
   },
 })
 export default class Datepicker extends Vue {
@@ -91,46 +73,51 @@ export default class Datepicker extends Vue {
   @Prop({ default: false, type: Boolean }) required?: boolean
 
   @Ref() input!: HTMLInputElement
+  @Ref() dialog!: DatepickerDialog
 
-  inputDay?: Date
   focusDay = new Date()
   selectedDay: Date | null = null
 
+  inputValue: string = ''
+  inputValid: boolean = false
+
   touched: boolean = false
   dialogExpanded: boolean = false
-
-  dayLabels = [
-    'Monday',
-    'Tuesday',
-    'Wednesday',
-    'Thursday',
-    'Friday',
-    'Saturday',
-    'Sunday',
-  ]
 
   get classes() {
     return {
       _valid: this.isValid,
       _invalid: !this.isValid,
       _required: this.required,
+      _touched: this.touched,
     }
   }
 
   mounted() {
-    this.checkInput(this.value)
-    this.updateValueFromInput()
+    if (this.value) {
+      this.onValueChange(this.value)
+    }
   }
+
+  @Watch('value') onValueChange(val: string) {
+    this.inputValue = val
+  }
+
+  get isValid() {
+    return this.inputValid
+  }
+
+  // Strings
 
   get toggleARIALabel() {
     let label = 'Choose Date'
     if (this.selectedDay) {
-      label += `, selected date is ${this.formatStringDate(this.selectedDay)}`
+      label += `, selected date is ${this.formatLabelDate(this.selectedDay)}`
     }
     return label
   }
 
-  formatStringDate(date: Date) {
+  formatLabelDate(date: Date) {
     const options = {
       weekday: 'long',
       year: 'numeric',
@@ -153,63 +140,36 @@ export default class Datepicker extends Vue {
     return `${y}-${m}-${d}`
   }
 
-  isDate(d?: Date | null) {
-    return d instanceof Date && !isNaN(d.getTime())
-  }
+  // Input
 
-  parseInput(d: string) {
-    let parsed = new Date(d)
-    if (chrono) {
-      parsed = chrono.en_GB.parseDate(d)
-    }
-    return parsed
-  }
-
-  checkInput(d: string) {
-    this.inputDay = this.parseInput(d)
-  }
-
-  emitValue(d: Date | null) {
-    if (d && this.isDate(d)) {
-      this.$emit('input', this.formatReturnDate(d))
-    } else {
-      this.$emit('input', null)
-    }
-  }
-
-  clearValues() {
-    this.focusDay = new Date()
-    this.selectedDay = null
-    this.emitValue(null)
-  }
-
-  updateValues(d: Date) {
-    this.focusDay = d
-    this.selectedDay = d
-    this.emitValue(d)
-  }
-
-  updateValueFromInput() {
-    if (!this.input.value) {
-      this.clearValues()
+  onInputChange(val: string) {
+    if (val) {
+      this.focusDay = new Date(val)
+      this.selectedDay = new Date(val)
     }
 
-    // input is valid, update values
-    if (this.inputDay && this.inputValid) {
-      this.updateValues(this.inputDay)
-    }
+    this.$emit('input', val)
   }
 
-  get inputValid(): boolean {
-    return this.isDate(this.inputDay)
+  onInputBlur() {
+    this.touched = true
   }
 
-  get isValid(): boolean {
-    return !this.required || !!this.selectedDay
+  onInputValid() {
+    this.inputValid = true
   }
+
+  onInputInvalid() {
+    this.inputValid = false
+  }
+
+  // Dialog
 
   openDialog() {
     this.dialogExpanded = true
+    this.$nextTick(() => {
+      this.dialog.focus()
+    })
   }
 
   closeDialog() {
@@ -217,17 +177,23 @@ export default class Datepicker extends Vue {
     this.touched = true
   }
 
-  onInput(d: string) {
-    this.checkInput(d)
+  onDialogEsc() {
+    this.dialogExpanded = false
+    this.input.focus()
   }
 
-  onInputChange() {
-    this.updateValueFromInput()
+  // Calendar
+
+  onCalendarInput(d: Date) {
+    this.selectedDay = d
+    this.inputValue = d ? this.formatReturnDate(d) : ''
   }
 
-  onInputBlur() {
-    this.touched = true
+  onCalendarFocus(d: Date) {
+    this.focusDay = d
   }
+
+  // Toggle
 
   onToggleClick() {
     if (this.dialogExpanded) {
@@ -235,29 +201,6 @@ export default class Datepicker extends Vue {
     } else {
       this.openDialog()
     }
-  }
-
-  onTodayClick() {
-    this.updateValues(new Date())
-  }
-
-  onClearClick() {
-    this.clearValues()
-  }
-
-  onCalendarInput(d: Date) {
-    this.selectedDay = d
-    this.emitValue(d)
-  }
-
-  onCalendarFocus(d: Date) {
-    this.focusDay = d
-  }
-
-  onDialogEsc() {
-    this.dialogExpanded = false
-    this.touched = true
-    this.input.focus()
   }
 }
 </script>
@@ -277,12 +220,12 @@ export default class Datepicker extends Vue {
   margin-bottom: em(16);
 }
 
-.datepicker-input {
+.datepicker-field {
   display: flex;
   position: relative;
 }
 
-.datepicker-input-field {
+.datepicker-field-input {
   flex: auto;
 
   input {
@@ -291,7 +234,7 @@ export default class Datepicker extends Vue {
   }
 }
 
-.datepicker-input-button {
+.datepicker-field-toggle {
   position: absolute;
   top: 0;
   right: 0;

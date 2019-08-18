@@ -9,6 +9,17 @@ import { storiesOf } from '@storybook/vue'
 // import { linkTo } from '@storybook/addon-links'
 
 import Datepicker from '../src/components/Datepicker'
+import DatepickerInput from '../src/components/DatepickerInput'
+
+storiesOf('DatepickerInput', module).add('Default', () => ({
+  components: { DatepickerInput },
+  template: `<datepicker-input v-model="value"></datepicker-input>`,
+  data() {
+    return {
+      value: '',
+    }
+  },
+}))
 
 storiesOf('Datepicker', module)
   .add('Default', () => ({

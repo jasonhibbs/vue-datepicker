@@ -36,6 +36,7 @@
           .datepicker-label._next-year(style="font-family: emojisymbols") ⏩
 
     datepicker-grid(
+      ref="grid"
       :focussed="focusDay"
       :selected="selectedDay"
       :dayLabels="dayLabels"
@@ -44,7 +45,7 @@
     )
 </template>
 <script lang="ts">
-import { Component, Prop, PropSync, Vue } from 'vue-property-decorator'
+import { Component, Prop, PropSync, Ref, Vue } from 'vue-property-decorator'
 import DatepickerGrid from '@/components/DatepickerGrid.vue'
 import { DatepickerGridDay } from './DatepickerDay.vue'
 
@@ -57,6 +58,7 @@ export default class DatepickerCalendar extends Vue {
   @Prop() dayLabels!: String[]
   @PropSync('focussed') focusDay!: Date
   @PropSync('selected') selectedDay?: Date
+  @Ref() grid!: DatepickerGrid
 
   monthLabels = [
     'January',
@@ -77,6 +79,10 @@ export default class DatepickerCalendar extends Vue {
     const m = this.focusDay.getMonth()
     const y = this.focusDay.getFullYear()
     return `${this.monthLabels[m]} ${y}`
+  }
+
+  focus() {
+    this.grid.focus()
   }
 
   updateFocus(d: Date) {

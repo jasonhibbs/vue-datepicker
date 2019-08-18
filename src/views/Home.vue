@@ -4,7 +4,21 @@
     h1 Datepicker
     p Value: {{ pickedDate || 'No date' }}
 
-    datepicker(required v-model="pickedDate" @input="onInput")
+    p
+      datepicker(required v-model="pickedDate" @input="onInput")
+
+    p
+      datepicker-input(v-model="pickedDate")
+
+    p
+      button(@click="pickedDate = `today`") Today
+      button(@click="pickedDate = `next year`") Next Year
+      button(@click="pickedDate = `yesterday`") Yesterday
+      button(@click="pickedDate = `last sunday`") Last Sunday
+      button(@click="pickedDate = `13th Jan 1999`") 13th Jan 1999
+      button(@click="pickedDate = `mar 25`") Mar 25
+      button(@click="pickedDate = `10/11/12`") 10/11/12
+      button(@click="pickedDate = `12/13/14`") 12/13/14
 
 
 
@@ -13,10 +27,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-property-decorator'
 import Datepicker from '@/components/Datepicker.vue'
+import DatepickerInput from '@/components/DatepickerInput.vue'
 
 @Component({
   components: {
     Datepicker,
+    DatepickerInput,
   },
 })
 export default class Home extends Vue {
